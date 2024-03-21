@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlin.random.Random
 
@@ -32,17 +33,21 @@ class DiceFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_dice, container, false).apply {
-            findViewById<Button>(R.id.rollButton).setOnClickListener {
-
-                // Generate random number
-                (Random.nextInt(sides!!) + 1).toString()
+        val view = inflater.inflate(R.layout.fragment_dice, container, false)
+        view.findViewById<Button>(R.id.rollButton).setOnClickListener {
+            sides?.let { sides ->
+                viewModel.rollDice(sides)
             }
         }
+
+        viewModel.diceRollResult.observe(viewLifecycleOwner, Observer { result ->
+            activity?.findViewById<TextView>(R.id.numberDisplay)?.text = result.toString()
+        })
+
+        return view
     }
 
     companion object {
-
         @JvmStatic
         fun newInstance(sides: Int) =
             DiceFragment().apply {
